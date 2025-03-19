@@ -247,13 +247,13 @@ if __name__ == '__main__':
 
     session = create_session()
 
-	if args.f is not None:
-	    with open(args.f, 'r', encoding='utf-8') as f:
-	        urls = f.read().splitlines()
-	    for url in urls:
-	        print(f"\t[-] Processing \"{url}\"...")
-	        get_items_list(session, url, args.r, args.e, args.w, args.p, args.i)
-	    sys.exit(0)
-	else:
-	    get_items_list(session, args.u, args.r, args.e, args.w, args.p, args.i)
-	sys.exit(0)
+    if args.f is not None:
+        with open(args.f, 'r', encoding='utf-8') as f:
+            urls = f.read().splitlines()
+        for url in urls:
+            print(f"\t[-] Processing \"{url}\"...")
+            get_items_list(session, url, args.r, args.e, args.w, args.p, args.i)
+        sys.exit(0)
+    else:
+        get_items_list(session, args.u, args.r, args.e, args.w, args.p, args.i)
+    sys.exit(0)
