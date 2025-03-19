@@ -14,7 +14,7 @@ from math import floor
 BUNKR_VS_API_URL_FOR_SLUG = "https://bunkr.cr/api/vs"
 SECRET_KEY_BASE = "SECRET_KEY_"
 
-def get_items_list(session, url, retries, extensions, only_export, custom_path=None):
+def get_items_list(session, url, retries, extensions, only_export, custom_path=None, start_index=0):
     extensions_list = extensions.split(',') if extensions is not None else []
        
     r = session.get(url)
@@ -52,6 +52,7 @@ def get_items_list(session, url, retries, extensions, only_export, custom_path=N
                     'size': -1,
                     'title': title
                 })
+
             album_name = soup.find('h1', {'class': 'truncate'}).text
             album_name = remove_illegal_chars(album_name)
     else:
@@ -63,6 +64,9 @@ def get_items_list(session, url, retries, extensions, only_export, custom_path=N
 
     download_path = get_and_prepare_download_path(custom_path, album_name)
     already_downloaded_url = get_already_downloaded_url(download_path)
+
+    # Skip files before start_index
+    items = items[start_index:]
 
     for item in items:
         if not direct_link:
@@ -228,6 +232,7 @@ if __name__ == '__main__':
     parser.add_argument("-e", help="Extensions to download (comma separated)", type=str)
     parser.add_argument("-p", help="Path to custom downloads folder")
     parser.add_argument("-w", help="Export url list (ex: for wget)", action="store_true")
+    parser.add_argument("-i", help="Starting index for Bunkr album files", type=int, required=False, default=0)
 
     args = parser.parse_args()
     sys.stdout.reconfigure(encoding='utf-8')
@@ -242,13 +247,13 @@ if __name__ == '__main__':
 
     session = create_session()
 
-    if args.f is not None:
-        with open(args.f, 'r', encoding='utf-8') as f:
-            urls = f.read().splitlines()
-        for url in urls:
-            print(f"\t[-] Processing \"{url}\"...")
-            get_items_list(session, url, args.r, args.e, args.w, args.p)
-        sys.exit(0)
-    else:
-        get_items_list(session, args.u, args.r, args.e, args.w, args.p)
-    sys.exit(0)
+	if args.f is not None:
+	    with open(args.f, 'r', encoding='utf-8') as f:
+	        urls = f.read().splitlines()
+	    for url in urls:
+	        print(f"\t[-] Processing \"{url}\"...")
+	        get_items_list(session, url, args.r, args.e, args.w, args.p, args.i)
+	    sys.exit(0)
+	else:
+	    get_items_list(session, args.u, args.r, args.e, args.w, args.p, args.i)
+	sys.exit(0)
